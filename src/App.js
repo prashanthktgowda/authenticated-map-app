@@ -4,29 +4,43 @@ import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import Login from './components/Login';
 import MapPage from './components/MapPage';
+import Spinner from './components/Spinner'; // Import Spinner
 import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Bonus: Loading state
+  const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState('light'); // 'light' or 'dark'
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // Stop loading once we know the auth state
+      setLoading(false);
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  // Add a class to the body for global theme styles
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
+
   if (loading) {
-    return <div className="loading-screen">Loading...</div>; // Simple loading indicator
+    return <Spinner />; // Use the new spinner
   }
 
   return (
-    <div className="App">
-      {user ? <MapPage /> : <Login />}
+    <div className={`App ${theme}`}>
+      {user ? (
+        <MapPage theme={theme} toggleTheme={toggleTheme} />
+      ) : (
+        <Login />
+      )}
     </div>
   );
 }

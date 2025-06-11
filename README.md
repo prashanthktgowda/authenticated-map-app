@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# Authenticated Map App - Intern Assignment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React-based web application that allows authenticated users to plot a route between two points on a map. It includes bonus features like using the device's current location and displaying route information.
 
-## Available Scripts
+## ✅ Features
 
-In the project directory, you can run:
+-   🔐 **Authentication:** Users must sign in with their Google account to access the app.
+-   🗺️ **Interactive Map:** Displays a map using Leaflet.
+-   📍 **Route Plotting:** Users can click two points on the map (Point A and Point B) to draw a driving route.
+-   🛰️ **Use Current Location:** A button allows users to set Point A to their current geographical location.
+-   📊 **Route Details:** Shows the total distance and estimated travel time for the plotted route.
+-   📱 **Responsive Design:** The layout adjusts for a better experience on mobile devices.
+-   ⏳ **Loading States:** Provides user feedback when the app is loading or finding the user's location.
 
-### `npm start`
+## 💻 Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+-   **Frontend:** React (Create React App)
+-   **Authentication:** Firebase Authentication (Google Sign-In)
+-   **Mapping:** React Leaflet
+-   **Routing:** Leaflet Routing Machine
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+-   Node.js (v14 or later)
+-   npm or yarn
+-   A Google account for Firebase setup
 
-### `npm run build`
+### Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/prashanthktgowda/authenticated-map-app.git
+    cd authenticated-map-app
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3.  **Set up Firebase:**
+    -   Create a Firebase project and a web app within it.
+    -   Enable Google Sign-In as an authentication method.
+    -   Create a `.env` file in the project root.
+    -   Copy your Firebase web app configuration into the `.env` file. The keys must be prefixed with `REACT_APP_`.
 
-### `npm run eject`
+    ```.env
+    REACT_APP_FIREBASE_API_KEY="YOUR_API_KEY"
+    REACT_APP_FIREBASE_AUTH_DOMAIN="YOUR_AUTH_DOMAIN"
+    REACT_APP_FIREBASE_PROJECT_ID="YOUR_PROJECT_ID"
+    REACT_APP_FIREBASE_STORAGE_BUCKET="YOUR_STORAGE_BUCKET"
+    REACT_APP_FIREBASE_MESSAGING_SENDER_ID="YOUR_SENDER_ID"
+    REACT_APP_FIREBASE_APP_ID="YOUR_APP_ID"
+    ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+4.  **Run the application:**
+    ```sh
+    npm start
+    ```
+    The app will be available at `http://localhost:3000`.
