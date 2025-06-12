@@ -16,16 +16,18 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// --- NEW ROBUST ROUTING COMPONENT ---
-const RoutingMachine = ({ start, end, onRouteFound, onReset }) => {
+// This is our "worker" component. It lives for the entire map session.
+const Routing = ({ start, end, onRouteFound, onReset }) => {
   const map = useMap();
   const routingControlRef = useRef(null);
+  // This ref will act as our "cancellation flag"
+  const requestRef = useRef(0);
 
   useEffect(() => {
-    // Create the routing control only once
+    // 1. CREATE THE CONTROL ONLY ONCE
     if (!routingControlRef.current) {
       const routingControl = L.Routing.control({
-        waypoints: [], // Start with no waypoints
+        waypoints: [],
         lineOptions: { styles: [{ color: '#6FA1EC', weight: 4 }] },
         show: false,
         addWaypoints: false,
@@ -33,6 +35,13 @@ const RoutingMachine = ({ start, end, onRouteFound, onReset }) => {
         draggableWaypoints: false,
         fitSelectedRoutes: true,
       }).on('routesfound', (e) => {
+        // --- THE CANCELLATION CHECK ---
+        // If the current request ID doesn't match the one from this closure,
+        // it means a newer request has been made or it has been reset. Ignore this callback.
+        if (e.routes[0].inputWaypoints[0].name === '' || requestRef.current !== e.routes[0].inputWaypoints[0].name) {
+          return;
+        }
+
         const route = e.routes[0];
         if (onRouteFound) {
           onRouteFound({
@@ -41,21 +50,27 @@ const RoutingMachine = ({ start, end, onRouteFound, onReset }) => {
           });
         }
       });
-      // Add the control to the map and store the instance in useRef
       routingControlRef.current = routingControl.addTo(map);
     }
 
-    // Update waypoints when start or end points change
+    // 2. UPDATE WAYPOINTS WHEN PROPS CHANGE
     if (start && end) {
+      // Generate a unique ID for this request
+      const requestId = `route_${Date.now()}`;
+      requestRef.current = requestId;
+
       routingControlRef.current.setWaypoints([
-        L.latLng(start[0], start[1]),
+        // We pass the requestId as a "name" to check in the callback
+        L.latLng(start[0], start[1], requestId), 
         L.latLng(end[0], end[1]),
       ]);
     } else {
-      // Clear waypoints if points are reset
-      routingControlRef.current.setWaypoints([]);
-      if (onReset) {
-        onReset(); // Also clear the info in the parent
+      // When resetting, invalidate any pending requests
+      requestRef.current = 0; 
+      const waypoints = routingControlRef.current.getWaypoints();
+      if (waypoints.length > 0) {
+        routingControlRef.current.setWaypoints([]);
+        if (onReset) onReset();
       }
     }
   }, [map, start, end, onRouteFound, onReset]);
@@ -65,7 +80,6 @@ const RoutingMachine = ({ start, end, onRouteFound, onReset }) => {
 
 
 const Map = ({ theme }) => {
-  // whenCreated is deprecated, let's use a ref instead
   const mapRef = useRef(null);
   const [pointA, setPointA] = useState(null);
   const [pointB, setPointB] = useState(null);
@@ -87,7 +101,6 @@ const Map = ({ theme }) => {
   const handleReset = () => {
     setPointA(null);
     setPointB(null);
-    // The RoutingMachine will see the null points and reset itself
   };
 
   const handleUseMyLocation = () => {
@@ -95,16 +108,12 @@ const Map = ({ theme }) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          const userLocation = [latitude, longitude];
-          setPointA(userLocation);
-          const map = mapRef.current;
-          if (map) {
-            map.flyTo(userLocation, 13);
+          setPointA([latitude, longitude]);
+          if (mapRef.current) {
+            mapRef.current.flyTo([latitude, longitude], 13);
           }
         },
-        () => {
-          alert("Could not get your location. Please enable location services.");
-        }
+        () => alert("Could not get your location.")
       );
     }
   };
@@ -120,8 +129,8 @@ const Map = ({ theme }) => {
     <div className="map-wrapper">
       <div className="info-panel">
         <h3>Instructions & Info</h3>
-        {!pointA && <p>Click the map or use your location to set Point A.</p>}
-        {pointA && !pointB && <p>Point A is set. Click map for Point B.</p>}
+        {!pointA && <p>Click map or use location for Point A.</p>}
+        {pointA && !pointB && <p>Point A set. Click map for Point B.</p>}
         
         <button className="location-button" onClick={handleUseMyLocation} disabled={pointA}>
           <FaLocationArrow /> Use My Location for A
@@ -141,15 +150,15 @@ const Map = ({ theme }) => {
         center={[51.505, -0.09]}
         zoom={13}
         style={{ height: '100%', width: '100%' }}
-        ref={mapRef} // Use ref to get the map instance
+        ref={mapRef}
       >
         <TileLayer url={tileLayers[theme]} attribution={attribution} />
         <MapClickHandler />
 
-        {/* Render the routing machine unconditionally */}
-        <RoutingMachine 
-          start={pointA} 
-          end={pointB} 
+        {/* The Routing component is now rendered UNCONDITIONALLY */}
+        <Routing
+          start={pointA}
+          end={pointB}
           onRouteFound={setRouteInfo}
           onReset={() => setRouteInfo(null)}
         />
